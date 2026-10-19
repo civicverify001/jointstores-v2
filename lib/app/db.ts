@@ -13,11 +13,14 @@ function pool(): Pool {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL not set");
     // Supabase (and any non-local host) requires TLS; the local throwaway Postgres has none.
+    // Supabase's pooler certificate is signed by Supabase's own CA, so verification needs
+    // that CA (PGSSL_CA, PEM text). Without it we still encrypt but cannot verify the chain.
     const local = /localhost|127\.0\.0\.1|host=\//.test(url);
+    const ca = process.env.PGSSL_CA;
     globalThis.__jsPool = new Pool({
       connectionString: url,
       max: 5,
-      ssl: local ? undefined : { rejectUnauthorized: process.env.PGSSL_NO_VERIFY !== "1" },
+      ssl: local ? undefined : ca ? { ca, rejectUnauthorized: true } : { rejectUnauthorized: false },
     });
   }
   return globalThis.__jsPool;
