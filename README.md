@@ -29,6 +29,14 @@ CHROME=<chromium> node test/e2e/walkthrough.mjs   # real 10/17/2026 day through 
 - `lib/app/` — db (RLS context), auth (PIN), use cases
 - `app/` — Close, Safe, Deposit & Verify, Cash Position
 
+## Environments
+| | Branch | Supabase project | Vercel environment | Who uses it |
+|---|---|---|---|---|
+| Staging | `staging` | `jointstores-v2-staging` | Preview (fixed branch URL) | Sam, Chelsea — testing |
+| Production | `main` | `jointstores-v2` | Production | store phones |
+
+Work lands on `staging` first. `main` only receives merges from `staging` after the e2e walkthrough passes against the staging URL. Vercel holds a separate `DATABASE_URL` per environment, so a staging deploy cannot reach the production database. Test PINs (1111…) exist only in staging; production gets real PINs set by the owner.
+
 ## Not in Release 1 (own gates)
 schedules, hours, pay, bills beyond the 7-day projection, inventory, other stores.
 Nothing deploys without the owner's go on Supabase Pro / Vercel Pro. The old Supabase project is never touched.
