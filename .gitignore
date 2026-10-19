@@ -1,0 +1,7 @@
+node_modules
+.env*
+.next
+*.tsbuildinfo
+next-env.d.ts
+# real NRS reports and bank statement lines: keep out of git until the repo is private
+test/fixtures/

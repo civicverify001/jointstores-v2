@@ -1,0 +1,27 @@
+{
+  "name": "jointstores-v2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "test": "node --test --experimental-strip-types test/*.test.ts",
+    "test:sql": "bash test/sql/run.sh",
+    "db:migrate": "psql -v ON_ERROR_STOP=1 -f supabase/migrations/0001_fortville_release1.sql",
+    "db:seed": "psql -v ON_ERROR_STOP=1 -f supabase/seed/fortville.sql"
+  },
+  "dependencies": {
+    "next": "16.4.2",
+    "pg": "8.23.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/pg": "^8",
+    "@types/react": "^19",
+    "playwright": "^1.58.2",
+    "typescript": "^5"
+  }
+}
