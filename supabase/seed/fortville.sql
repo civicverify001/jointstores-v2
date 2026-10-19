@@ -7,6 +7,8 @@ do $$ begin
     create role app_user nologin;
   end if;
 end $$;
+-- the connecting role (postgres on Supabase) must be able to SET ROLE app_user
+do $$ begin execute format('grant app_user to %I', current_user); end $$;
 grant usage on schema public, private to app_user;
 grant select, insert, update on all tables in schema public to app_user;
 grant select on public.account_balances to app_user;
