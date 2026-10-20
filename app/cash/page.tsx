@@ -51,7 +51,7 @@ export default async function CashPage({ searchParams }: { searchParams: Promise
   const fortvilleCash = bal(r, c.drawer) + bal(r, c.safe) + bal(r, c.collected) + bal(r, c.inTransit);
   return (
     <main>
-      <Top title="Cash Position" s={s} help="Where every Fortville dollar is right now, and what the bank will look like after this week\u2019s bills." />
+      <Top title="Cash Position" s={s} help="Where every Fortville dollar is right now, and what the bank will look like after this week’s bills." />
       {sp.err && <div className="notice bad">{sp.err}</div>}
       {sp.msg && <div className="notice ok">{sp.msg}</div>}
       <div className="stamp" style={{ marginBottom: 8 }}>
