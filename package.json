@@ -9,7 +9,8 @@
     "test": "node --test --experimental-strip-types test/*.test.ts",
     "test:sql": "bash test/sql/run.sh",
     "db:migrate": "psql -v ON_ERROR_STOP=1 -f supabase/migrations/0001_fortville_release1.sql",
-    "db:seed": "psql -v ON_ERROR_STOP=1 -f supabase/seed/fortville.sql"
+    "db:seed": "psql -v ON_ERROR_STOP=1 -f supabase/seed/fortville.sql",
+    "test:ui": "node test/e2e/responsive.mjs"
   },
   "dependencies": {
     "next": "16.4.2",

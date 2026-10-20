@@ -12,7 +12,7 @@ const report = readFileSync(FX + "store_report.txt", "utf8");
 const csv = readFileSync(FX + "sales_by_day.csv", "utf8");
 const statement = readFileSync(new URL("../fixtures/bank-2026-09/first_merchants_fortville.txt", import.meta.url).pathname, "utf8");
 
-const browser = await chromium.launch({ executablePath: process.env.CHROME ?? "/opt/pw-browsers/chromium/chrome-linux/chrome" });
+const browser = await chromium.launch({ executablePath: process.env.CHROME ?? "/opt/pw-browsers/chromium" });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png`, fullPage: true });
@@ -27,7 +27,7 @@ const go = async (loc) => {
 };
 const must = async (s) => { const t = await text(); if (!t.includes(s)) throw new Error(`expected "${s}" on ${page.url()}\n--- page: ${t.slice(0, 600)}`); };
 async function login(name, pin) {
-  await page.goto(`${BASE}/login?out=1`);
+  await page.context().clearCookies();
   await page.goto(`${BASE}/login`);
   await page.fill("input[name=name]", name);
   await page.fill("input[name=pin]", pin);
@@ -52,7 +52,7 @@ await page.goto(`${BASE}/safe`);
 await page.fill("input[name=amount]", "523.30");
 await page.fill("input[name=at]", "2026-10-17T13:57");
 await page.fill("input[name=note]", "Jessi shift drop");
-await go(page.locator("form[action] button").first());
+await go(page.locator("main form:not(.signout) button").first());
 await must("Drop recorded");
 await must("$523.30");
 await shot("02-jessi-drop");
@@ -66,7 +66,7 @@ await login("Rylie", "4444");
 await page.goto(`${BASE}/safe`);
 await page.fill("input[name=amount]", "346.55");
 await page.fill("input[name=at]", "2026-10-17T22:01");
-await go(page.locator("form[action] button").first());
+await go(page.locator("main form:not(.signout) button").first());
 await must("$869.85"); // expected in safe
 await shot("03-rylie-drop");
 
@@ -82,7 +82,7 @@ await page.fill("input[name=counted]", "250.45");
 await page.waitForTimeout(200);
 await must("Over $0.02");
 await shot("04-rylie-close-preview");
-await go(page.locator("form[action] > button"));
+await go(page.locator("#close-form > button"));
 await must("Close saved");
 await must("$3,408.94");
 await must("$238.65");
@@ -94,7 +94,7 @@ await shot("05-close-saved");
 await login("Chelsea", "2222");
 await page.goto(`${BASE}/safe`);
 await must("$869.85");
-const forms = page.locator("form[action]");
+const forms = page.locator("main form:not(.signout)");
 await forms.nth(1).locator("input[name=counted]").fill("864.85");
 await forms.nth(1).locator("input[name=at]").fill("2026-10-18T10:00");
 await go(forms.nth(1).locator("button"));
@@ -106,11 +106,11 @@ await must("2026-10-17");
 await must("Chelsea holding (Fortville) $864.85");
 await page.fill("input[name=amount]", "864.85");
 await page.fill("input[name=at]", "2026-10-18T11:00");
-await go(page.locator("form[action]").filter({ hasText: "Record deposit" }).locator("button"));
+await go(page.locator("main form:not(.signout)").filter({ hasText: "Record deposit" }).locator("button"));
 await must("Deposit recorded");
 await must("Deposits in transit $864.85");
 // verify the close
-await go(page.locator("form[action]").filter({ hasText: "Verify 2026-10-17" }).locator("button"));
+await go(page.locator("main form:not(.signout)").filter({ hasText: "Verify 2026-10-17" }).locator("button"));
 await must("Close verified");
 await shot("07-chelsea-deposit-verify");
 // Chelsea has no bank visibility (D3 default): Cash page shows no bank card
@@ -123,7 +123,7 @@ await login("Sam", "1111");
 await page.goto(`${BASE}/cash`);
 await page.fill("input[name=balance]", "4705.59");
 await page.fill("input[name=asOf]", "2026-10-18T09:00");
-await go(page.locator("form[action]").filter({ hasText: "Save snapshot" }).locator("button"));
+await go(page.locator("main form:not(.signout)").filter({ hasText: "Save snapshot" }).locator("button"));
 await must("Bank snapshot saved");
 await must("$4,705.59");
 await must("bills due in 7 days");
@@ -132,17 +132,17 @@ await shot("09-owner-cash-position");
 await page.goto(`${BASE}/deposit`);
 await page.fill("input[name=year]", "2026");
 await page.fill("textarea[name=text]", statement);
-await go(page.locator("form[action]").filter({ hasText: "Import" }).locator("button"));
+await go(page.locator("main form:not(.signout)").filter({ hasText: "Import" }).locator("button"));
 await must("Statement: 57 new lines");
 // re-import is a no-op
 await page.fill("input[name=year]", "2026");
 await page.fill("textarea[name=text]", statement);
-await go(page.locator("form[action]").filter({ hasText: "Import" }).locator("button"));
+await go(page.locator("main form:not(.signout)").filter({ hasText: "Import" }).locator("button"));
 await must("0 new lines, 57 already known");
 await shot("10-owner-statement-import");
 
-await page.locator("form[action]").filter({ hasText: "Mark cleared" }).locator("input[name=at]").fill("2026-10-19T09:00");
-await go(page.locator("form[action]").filter({ hasText: "Mark cleared" }).locator("button"));
+await page.locator("main form:not(.signout)").filter({ hasText: "Mark cleared" }).locator("input[name=at]").fill("2026-10-19T09:00");
+await go(page.locator("main form:not(.signout)").filter({ hasText: "Mark cleared" }).locator("button"));
 await must("Deposit marked cleared");
 await must("cleared");
 await shot("11-owner-deposit-cleared");

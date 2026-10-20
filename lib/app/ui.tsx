@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { signOut } from "./actions.ts";
 import type { Session } from "./auth.ts";
 
 export const usd = (c: number | string | null | undefined) => {
@@ -13,26 +14,65 @@ export const nowLocalIso = () => {
 };
 export const cents = (v: FormDataEntryValue | null) => Math.round(Number(String(v ?? "0").replace(/[$,]/g, "")) * 100) || 0;
 
+/** One nav for every screen size: bottom tabs on phones, left sidebar from 900px (see DESIGN_RULES.md). */
 export function Tabs({ active, s }: { active: string; s: Session }) {
   const mgr = s.role !== "employee";
   const items = [
-    ["/", "🏠", "Home"], ["/close", "🧾", "Close"], ["/safe", "🔐", "Safe"],
-    ...(mgr ? [["/deposit", "🏦", "Deposit"], ["/cash", "💵", "Cash"]] : []),
+    ["/", "🏠", "Home", "Today at a glance"],
+    ["/close", "🧾", "Close", "End of day: report + drawer count"],
+    ["/safe", "🔐", "Safe", "Drops in, collections out"],
+    ...(mgr ? [["/deposit", "🏦", "Deposit", "Bank deposits + verify closes"], ["/cash", "💵", "Cash", "Where every dollar is"]] : []),
   ];
   return (
-    <nav className="tabs">
-      {items.map(([href, icon, label]) => (
-        <Link key={href} href={href} className={active === href ? "on" : ""}><span>{icon}</span>{label}</Link>
+    <nav className="tabs" aria-label="Sections">
+      <div className="brand">JointStores<small>{s.stores[0]?.name}</small></div>
+      {items.map(([href, icon, label, hint]) => (
+        <Link key={href} href={href} className={active === href ? "on" : ""} aria-current={active === href ? "page" : undefined}>
+          <span className="ic" aria-hidden="true">{icon}</span><span className="lb">{label}</span><small className="hint">{hint}</small>
+        </Link>
       ))}
+      <div className="navwho">{s.name} · {s.role}<br /><form action={signOut} className="signout"><button type="submit">sign out</button></form></div>
     </nav>
   );
 }
 
-export function Top({ title, s }: { title: string; s: Session }) {
+/** Page header. `help` is the one sentence a first-time user needs to know about this page. */
+export function Top({ title, s, help }: { title: string; s: Session; help?: string }) {
   return (
     <div className="top">
-      <h1>{title}</h1>
-      <div className="who">{s.name} · {s.role}<br /><Link href="/login?out=1">sign out</Link></div>
+      <div>
+        <h1>{title}</h1>
+        {help && <p className="help">{help}</p>}
+      </div>
+      <div className="who">{s.name} · {s.role}<br /><form action={signOut} className="signout"><button type="submit">sign out</button></form></div>
     </div>
+  );
+}
+
+/** The whole Release 1 flow in four steps, shown on Home so nobody has to remember it. */
+export function HowItWorks({ role }: { role: Session["role"] }) {
+  const steps = [
+    ["1", "Drop", "Cash above the float goes into the safe. Record each drop here."],
+    ["2", "Close", "At the end of the day paste the NRS Store Report and count the drawer. The app tells you over or short."],
+    ["3", "Collect & deposit", "Chelsea counts the safe, takes the cash, and records the bank deposit."],
+    ["4", "Verify", "Chelsea checks the close against the report. The owner sees where every dollar is on Cash."],
+  ];
+  const cards = steps.map(([n, t, d]) => (
+    <div className={`step ${role === "employee" && Number(n) > 2 ? "dim" : ""}`} key={n}>
+      <span className="n">{n}</span><b>{t}</b><span>{d}</span>
+    </div>
+  ));
+  return (
+    <>
+      {/* Phone: one row of numbered titles, full text behind a tap. Laptop: four cards. */}
+      <details className="howmini">
+        <summary>
+          {steps.map(([n, t]) => <span className={role === "employee" && Number(n) > 2 ? "dim" : ""} key={n}><i>{n}</i>{t}</span>)}
+          <small>How it works ▾</small>
+        </summary>
+        <div className="how">{cards}</div>
+      </details>
+      <div className="how howfull">{cards}</div>
+    </>
   );
 }

@@ -14,7 +14,7 @@ export function LivePreview({ drawerNow }: { drawerNow: number }) {
   const [started] = useState(() => Date.now());
 
   useEffect(() => {
-    const form = document.querySelector("form[action]") as HTMLFormElement | null;
+    const form = document.getElementById("close-form") as HTMLFormElement | null;
     if (!form) return;
     const recompute = () => {
       const fd = new FormData(form);

@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
-import { login, logout } from "../../lib/app/auth.ts";
+import { login } from "../../lib/app/auth.ts";
 
-export default async function Login({ searchParams }: { searchParams: Promise<{ out?: string; bad?: string; err?: string }> }) {
+export default async function Login({ searchParams }: { searchParams: Promise<{ bad?: string; err?: string }> }) {
   const sp = await searchParams;
-  if (sp.out) { await logout(); redirect("/login"); }
   async function doLogin(fd: FormData) {
     "use server";
     let ok = false;

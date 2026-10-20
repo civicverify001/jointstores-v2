@@ -52,7 +52,7 @@ export default async function ClosePage({ searchParams }: { searchParams: Promis
   const ex = data.existing;
   return (
     <main>
-      <Top title="Close" s={s} />
+      <Top title="Close" s={s} help="End of day. Paste the NRS Store Report, count the drawer, and the app shows over or short before you submit." />
       {sp.err && <div className="notice bad">{sp.err}</div>}
       {sp.done && <div className="notice ok">Close saved. Chelsea verifies it next.</div>}
 
@@ -83,7 +83,7 @@ export default async function ClosePage({ searchParams }: { searchParams: Promis
           <div className="stamp">submitted {ex.submitted_at}</div>
         </div>
       ) : (
-        <form action={submit}>
+        <form action={submit} id="close-form">
           <input type="hidden" name="date" value={date} />
           <div className="card">
             <h2 style={{ marginTop: 0 }}>1 · Store Report</h2>

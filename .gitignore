@@ -5,3 +5,4 @@ node_modules
 next-env.d.ts
 # real NRS reports and bank statement lines: keep out of git until the repo is private
 test/fixtures/
+test/e2e/shots/

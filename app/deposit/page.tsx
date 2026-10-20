@@ -65,7 +65,7 @@ export default async function DepositPage({ searchParams }: { searchParams: Prom
 
   return (
     <main>
-      <Top title="Deposit & Verify" s={s} />
+      <Top title="Deposit & Verify" s={s} help="Record bank deposits from the cash you collected, and verify each day\u2019s close against the NRS report." />
       {sp.err && <div className="notice bad">{sp.err}</div>}
       {sp.msg && <div className="notice ok">{sp.msg}</div>}
 

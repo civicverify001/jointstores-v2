@@ -41,7 +41,7 @@ export default async function SafePage({ searchParams }: { searchParams: Promise
 
   return (
     <main>
-      <Top title="Safe" s={s} />
+      <Top title="Safe" s={s} help="Every time cash leaves the drawer for the safe, record it here. Chelsea records what she takes out." />
       {sp.err && <div className="notice bad">{sp.err}</div>}
       {sp.msg && <div className="notice ok">{sp.msg}</div>}
       <div className="card">

@@ -2,7 +2,17 @@ import Link from "next/link";
 import { requireSession } from "../lib/app/auth.ts";
 import { asUser } from "../lib/app/db.ts";
 import { accountsFor, bal } from "../lib/app/ledger.ts";
-import { Tabs, Top, usd, todayLocal } from "../lib/app/ui.tsx";
+import { Tabs, Top, HowItWorks, usd, todayLocal } from "../lib/app/ui.tsx";
+
+function nextStep(role: string, closed: boolean, status: string | undefined, safe: number): string {
+  if (role === "employee") return closed ? "Done for today. Any more cash for the safe goes in the Safe tab." : "Record safe drops as you make them, then Close the register at the end of the day.";
+  if (role === "manager") {
+    if (closed && status === "submitted") return "A close is waiting: Deposit tab → Verify.";
+    if (safe > 0) return "Cash is in the safe: Safe tab → Collect, then Deposit.";
+    return "Nothing waiting. Cash tab shows today's position.";
+  }
+  return "Enter today's bank balance on Cash; mark deposits cleared when they show on the statement.";
+}
 
 export default async function Home() {
   const s = await requireSession();
@@ -20,7 +30,12 @@ export default async function Home() {
   const todayClose = data.closes.find((c) => c.business_date === today);
   return (
     <main>
-      <Top title={store.name} s={s} />
+      <Top title={store.name} s={s} help="Everything about today's cash in one place. Follow the four steps; the app does the math." />
+      <HowItWorks role={s.role} />
+      <div className="card next">
+        <div className="row"><span className="k">Your next step</span>
+          <span className="v" style={{ whiteSpace: "normal", textAlign: "right" }}>{nextStep(s.role, !!todayClose, todayClose?.status, bal(data.rows, data.codes.safe))}</span></div>
+      </div>
       {!data.openingAt && s.role === "owner" && (
         <div className="notice">Opening counts not set yet. Go to <Link href="/cash">Cash</Link> → “Set opening” on cutoff night.</div>
       )}
